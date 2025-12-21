@@ -221,5 +221,58 @@ def main():
         else:
             print("Invalid option.") #if a option is entered like 9 it would fail
         print ("====================")
+def get_total_value(data):
+    """Calculates the total financial value of all stock."""
+    total = 0
+    for item in data:
+        total += (item['price'] * item['quantity'])
+    return total
 
-main()
+def main():
+    data = load_data()
+
+    while True:
+        print("\n1. Add Item")
+        print("2. View Items")
+        print("3. Update Item")
+        print("4. Search Item")
+        print("5. Delete Item")
+        print("6. Clear Inventory")
+        print("7. Low Stock Report")
+        print("8. Save Data")
+        print("9. View Total Inventory Value") # New addition
+        print("0. EXIT") # New addition
+        print("====================")
+
+        option = input("Choose: ")
+        print ("====================")
+
+        if option == "1":
+            data = add_item(data)
+        elif option == "2":
+            view_items(data)
+        elif option == "3":
+            data = update_item(data)
+        elif option == "4":
+            search_item(data)
+        elif option == "5":
+            data = delete_item(data)
+        elif option == "6":
+            data = clear_inventory(data)
+        elif option == "7":
+            low_stock_report(data)
+        elif option == "8":
+            data = save_data(data)
+            print("Saved.")
+        elif option == "9":
+            val = get_total_value(data)
+            print(f"Total Value of all Stock: £{val:.2f}")
+        elif option == "0":
+            print("Exiting. Goodbye!")
+            break
+        else:
+            print("Invalid option.")
+        print ("====================")
+
+if __name__ == "__main__":
+    main()
