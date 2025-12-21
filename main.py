@@ -268,7 +268,7 @@ def main():
             val = get_total_value(data)
             print(f"Total Value of all Stock: £{val:.2f}")
         elif option == "0":
-            print("Exiting. Goodbye!")
+            print("Exiting.")
             break
         else:
             print("Invalid option.")
