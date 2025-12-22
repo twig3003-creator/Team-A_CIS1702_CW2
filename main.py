@@ -18,7 +18,37 @@ def load_data():
         except:
             print("File empty.")
             return []
-    
+    # not too sure where this goes but here seems suitible
+def export_to_csv(data):
+    print("\n---CSV export tool ---")
+
+    if not data:
+        print("Your inventory is empty, there is nothing to save.")
+        return
+
+    print(f"Found {len(data)} item(s) ready to export.")
+    confirm = input("Do you want to continue? (Y/N): ")
+
+    if confirm.upper() == "Y":
+        try:
+            with open("inventory_backup.csv", "w") as my_file:
+                my_file.write("ID, Name, Price, Quantity\n")
+                
+                for item in data:
+                    line = f"{item['id']}, {item['name']}, {item['price']}, {item['quantity']}\n"
+                    my_file.write(line)
+            
+            print("Export completed")
+            print("You can now open 'inventory_backup.csv'")
+            print("====================")
+
+        except Exception as e:
+            print(f"Error: {e}")
+            print("Unable to save this file.")
+            print("Ensure that inventory_backup.csv is closed and try again.")
+
+    else:
+        print("Export cancelled. No files were created.")
 #     # old code
 #     return []
     
