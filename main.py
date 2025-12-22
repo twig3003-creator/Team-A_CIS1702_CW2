@@ -18,37 +18,7 @@ def load_data():
         except:
             print("File empty.")
             return []
-    # not too sure where this goes but here seems suitible
-def export_to_csv(data):
-    print("\n---CSV export tool ---")
-
-    if not data:
-        print("Your inventory is empty, there is nothing to save.")
-        return
-
-    print(f"Found {len(data)} item(s) ready to export.")
-    confirm = input("Do you want to continue? (Y/N): ")
-
-    if confirm.upper() == "Y":
-        try:
-            with open("inventory_backup.csv", "w") as my_file:
-                my_file.write("ID, Name, Price, Quantity\n")
-                
-                for item in data:
-                    line = f"{item['id']}, {item['name']}, {item['price']}, {item['quantity']}\n"
-                    my_file.write(line)
-            
-            print("Export completed")
-            print("You can now open 'inventory_backup.csv'")
-            print("====================")
-
-        except Exception as e:
-            print(f"Error: {e}")
-            print("Unable to save this file.")
-            print("Ensure that inventory_backup.csv is closed and try again.")
-
-    else:
-        print("Export cancelled. No files were created.")
+    
 #     # old code
 #     return []
     
@@ -145,7 +115,7 @@ def update_item(data):
                     if quantity == (""):
                         pass
                     else:
-                        item["quantity"] = integer(quantity)
+                        item["quantity"] = int(quantity)
                     break
                 except:
                     print ("Invalid input. Input value must be an integer.")
@@ -202,6 +172,23 @@ def low_stock_report(data):
     if not found:
         print("No low-stock items.")
 
+#Generate report
+def generate_report(inventory):
+    total_items = len(inventory)#counts the number of unique items
+    total_value = sum(item['price'] * item['quantity'] for item in inventory)#total financial value of all stock
+    low_stock_items = [item for item in inventory if item['quantity'] < 5]#items with quantity below 5
+
+    print("----- Inventory Report -----")
+    print(f"Total unique items: {total_items}")
+    print(f"Total inventory value: £{total_value:.2f}")
+    print("Low stock items (Quantity below 5):")
+    if low_stock_items:
+        for item in low_stock_items:
+            print(f"- {item['name']} (Qty: {item['quantity']})")#lists low stock items
+    else:
+        print("None")
+    print("----------------------------")
+
 #menu
 def main():
     data = load_data()
@@ -216,7 +203,9 @@ def main():
         print("5. Delete Item")
         print("6. Clear Inventory")
         print("7. Low Stock Report")
-        print("8. Sava data") # not sure why this exists, since data is automatically saved?
+        print("8. Save data") # not sure why this exists, since data is automatically saved?
+        print("9. Generate Report") 
+        print("10. Exit")
         print("====================") #seperator makes it more visually better
 
         #if u want to add more options above make sure u change the options below too
@@ -247,62 +236,15 @@ def main():
         elif option == "8":
             data = save_data(data)
             print("Saved.")
-
+        elif option == "9":
+            generate_report(data)
+        
+        elif option == "10": # allows user to exit program
+            print("Exiting program.")
+            break
+            
         else:
             print("Invalid option.") #if a option is entered like 9 it would fail
         print ("====================")
-def get_total_value(data):
-    """Calculates the total financial value of all stock."""
-    total = 0
-    for item in data:
-        total += (item['price'] * item['quantity'])
-    return total
-
-def main():
-    data = load_data()
-
-    while True:
-        print("\n1. Add Item")
-        print("2. View Items")
-        print("3. Update Item")
-        print("4. Search Item")
-        print("5. Delete Item")
-        print("6. Clear Inventory")
-        print("7. Low Stock Report")
-        print("8. Save Data")
-        print("9. View Total Inventory Value") # New addition
-        print("0. EXIT") # New addition
-        print("====================")
-
-        option = input("Choose: ")
-        print ("====================")
-
-        if option == "1":
-            data = add_item(data)
-        elif option == "2":
-            view_items(data)
-        elif option == "3":
-            data = update_item(data)
-        elif option == "4":
-            search_item(data)
-        elif option == "5":
-            data = delete_item(data)
-        elif option == "6":
-            data = clear_inventory(data)
-        elif option == "7":
-            low_stock_report(data)
-        elif option == "8":
-            data = save_data(data)
-            print("Saved.")
-        elif option == "9":
-            val = get_total_value(data)
-            print(f"Total Value of all Stock: £{val:.2f}")
-        elif option == "0":
-            print("Exiting.")
-            break
-        else:
-            print("Invalid option.")
-        print ("====================")
-
 if __name__ == "__main__":
     main()
