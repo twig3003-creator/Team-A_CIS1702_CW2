@@ -4,20 +4,24 @@ import os
 #this loads the inventory / or you can start with a new one
 def load_data():
     # changed code here, since it only worked with an existing inventory.json
-    # kept old code in case this creatures bugs
-    if os.path.exists("inventory.json") == True:
+    # kept old code in case this creates bugs
+    if os.path.exists("inventory.json") == True: # checks if file exists
         pass
     else:
         print("File does not exist, creating new file.")
-        with open("inventory.json", "a"):
-            pass
-
-    with open("inventory.json", "r") as file:
-        try:
-            return json.load(file)
-        except:
-            print("File empty.")
-            return []
+        with open("inventory.json", "a"): # creates file
+            pass # continue to next part
+    
+    try:
+        with open("inventory.json", "r") as file:
+            if os.path.getsize("inventory.json") == 0: # checks if file has a size of 0, or is empty
+                print("File empty. ")
+                return [] # this would return a JSONDecodeError if the file was returned through json.load() since, as it's empty, it doesn't have the correct json format
+            else:
+                return json.load(file)
+    except ValueError: # ValueError contains JSONDecodeError - when file is not formatted correctly
+        print ("Error: File does not meet the required format")
+        exit() #end program since nothing can be done after this
     
 #     # old code
 #     return []
@@ -33,15 +37,14 @@ def load_data():
 
 #save inventory to file
 def save_data(data):
-    with open("inventory.json", "w") as file:
+    with open("inventory.json", "w") as file: # automatically closes the file when done
         data = sorted(data, key=lambda x: int(x["id"])) # when adding or updating items, sort them into numerical order by id
-        json.dump(data, file, indent=4)
-        return (data)
+        json.dump(data, file, indent=4) # put data into file with correct format
+        return (data) # return data, since it was changed by the lambda function which sorted it
 
-#you can add a new item heree
+#you can add a new item here
 def add_item(data):
-    
-    while True:
+    while True: # repeat this loop until a valid, unused ID is submitted
         exists = False
         item_id = input("ID: ")
         for item in data:
@@ -53,19 +56,23 @@ def add_item(data):
             break
 
     name = input("Name: ")
+    
     while True: # loop allows for reentering values
         try: # prevents invalid data types
             price = float(input("Price: "))
             break
         except:
             print ("Invalid input. Input value must be a float or integer.")
+    
     while True:
         try:
             quantity = int(input("Quantity: "))
             break
         except:
             print("Invalid input. Input value must be an integer.")
-    
+
+    # why are we giving this option?
+    # the user already has the option to manually save in the main program
     save_now = input("Save now? (Y/N): ").upper()
     
     if save_now == "Y":
@@ -82,14 +89,14 @@ def view_items(data):
         print("No items found.")
         return
     print("--- Inventory ---")
-    for item in data:
+    for item in data: # go through every item in the data
         print(f"ID: {item['id']} / Name: {item['name']} / £{item['price']:.2f} / Qty: {item['quantity']}")
 
 #update item
 def update_item(data):
     item_id = input("Enter ID to update: ")
-    for item in data:
-        if item["id"] == item_id:
+    for item in data: # loops through all items in data
+        if item["id"] == item_id: # selects the corresponding item
             print("Leave blank to skip update.")
             
             name = input("New name: ")
@@ -101,7 +108,7 @@ def update_item(data):
             while True:
                 try:
                     price = input("New price: ")
-                    if price == (""): # normally would combine input and assignment ( item["price"] =input(float(price) ) but entering nothing makes this impossible
+                    if price == (""): # normally would combine input and assignment ( item["price"] = input(float(price) ) but entering nothing generates an error
                         pass
                     else:
                         item["price"] = float(price)
@@ -127,14 +134,14 @@ def update_item(data):
 
 #search by name
 def search_item(data):
-    search = input("Search name: ").lower()
+    search = input("Search name: ").lower() # makes sure that the search doesn't fail because of inconsistent cases
     found = False
-    for item in data:
+    for item in data: # compare against every item in the data
         if search in item["name"].lower():
             print(f"ID: {item['id']} / Name: {item['name']} / £{item['price']:.2f} / Qty: {item['quantity']}")
             found = True
     if not found:
-        print("Nothing found.")
+        print("Item not found.")
 
 #clear all
 def clear_inventory(data):
@@ -193,9 +200,8 @@ def generate_report(inventory):
 def main():
     data = load_data()
 
-#all options you can add more if u like but these are just the basic ones for now
-    while True:
-        #os.system('cls' if os.name == 'nt' else 'clear') # what does this do?
+    while True: # let user choose options multiple times
+        #os.system('cls' if os.name == 'nt' else 'clear') # what does this do? it keeps missing with print statements and doesn't seem to serve a purpose
         print("1. Add Item")
         print("2. View Items")
         print("3. Update Item")
@@ -206,7 +212,7 @@ def main():
         print("8. Save data") # not sure why this exists, since data is automatically saved?
         print("9. Generate Report") 
         print("10. Exit")
-        print("====================") #seperator makes it more visually better
+        print("====================") #seperator makes it visually better
 
         #if u want to add more options above make sure u change the options below too
         option = input("Choose: ")
@@ -236,15 +242,17 @@ def main():
         elif option == "8":
             data = save_data(data)
             print("Saved.")
+        
         elif option == "9":
             generate_report(data)
         
-        elif option == "10": # allows user to exit program
+        elif option == "10": # allows user to exit program by breaking out of main loop
             print("Exiting program.")
             break
             
         else:
-            print("Invalid option.") #if a option is entered like 9 it would fail
+            print("Invalid option.") # if an invaldi option is entered, let them enter a new option
         print ("====================")
-if __name__ == "__main__":
+
+if __name__ == "__main__": # makes it so the program doesn't run when it's imported, stopping it from breaking or interrupting other programs
     main()
