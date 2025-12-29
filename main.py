@@ -147,7 +147,7 @@ def search_item(data):
 def clear_inventory(data):
     confirm = input("Clear all items? (Y/N): ").upper()
     if confirm == "Y": 
-        data.clear()
+        data.clear() # deletes every item in data
         print("Inventory cleared.")
         return(save_data(data))
     else:
@@ -181,17 +181,17 @@ def low_stock_report(data):
 
 #Generate report
 def generate_report(inventory):
-    total_items = len(inventory)#counts the number of unique items
-    total_value = sum(item['price'] * item['quantity'] for item in inventory)#total financial value of all stock
-    low_stock_items = [item for item in inventory if item['quantity'] < 5]#items with quantity below 5
+    total_items = len(inventory) #counts the number of unique items
+    total_value = sum(item['price'] * item['quantity'] for item in inventory) #total financial value of all stock
+    low_stock_items = [item for item in inventory if item['quantity'] < 5] #items with quantity below 5
 
     print("----- Inventory Report -----")
     print(f"Total unique items: {total_items}")
     print(f"Total inventory value: £{total_value:.2f}")
-    print("Low stock items (Quantity below 5):")
+    print("Low stock items (Quantity below 5):") # why are we doing this? we have low_stock_report(). can't we reuse it here?
     if low_stock_items:
         for item in low_stock_items:
-            print(f"- {item['name']} (Qty: {item['quantity']})")#lists low stock items
+            print(f"- {item['name']} (Qty: {item['quantity']})") #lists low stock items
     else:
         print("None")
     print("----------------------------")
@@ -202,15 +202,15 @@ def main():
 
     while True: # let user choose options multiple times
         #os.system('cls' if os.name == 'nt' else 'clear') # what does this do? it keeps missing with print statements and doesn't seem to serve a purpose
-        print("1. Add Item")
+        print("1. Add Item") # we could make this into 1 print statement using \n for new lines
         print("2. View Items")
         print("3. Update Item")
         print("4. Search Item")
         print("5. Delete Item")
         print("6. Clear Inventory")
         print("7. Low Stock Report")
-        print("8. Save data") # not sure why this exists, since data is automatically saved?
-        print("9. Generate Report") 
+        print("8. Generate Report") 
+        print("9. Save data") # not sure why this exists, since data is automatically saved?
         print("10. Exit")
         print("====================") #seperator makes it visually better
 
@@ -238,13 +238,13 @@ def main():
 
         elif option == "7":
             low_stock_report(data)
-
+        
         elif option == "8":
+            generate_report(data)
+
+        elif option == "9":
             data = save_data(data)
             print("Saved.")
-        
-        elif option == "9":
-            generate_report(data)
         
         elif option == "10": # allows user to exit program by breaking out of main loop
             print("Exiting program.")
