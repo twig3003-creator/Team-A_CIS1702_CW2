@@ -61,6 +61,9 @@ def add_item(data):
     while True: # loop allows for reentering values
         try: # prevents invalid data types
             price = round(float(input("Price: ")), 2)
+            while price <= 0:
+                print("Price must be greater than zero.")
+                price = round(float(input("Price: ")), 2)
             break
         except ValueError:
             print ("Invalid input. Input value must be a float or integer.")
@@ -68,6 +71,9 @@ def add_item(data):
     while True:
         try:
             quantity = int(input("Quantity: "))
+            while quantity < 0:
+                print("Quantity must not be below zero.")
+                quantity = int(input("Quantity: "))
             break
         except ValueError:
             print("Invalid input. Input value must be an integer.")
@@ -115,10 +121,12 @@ def update_item(data):
                 try:
                     price = input("New price: ")
                     if len(price.strip()) == 0: # normally would combine input and assignment ( item["price"] = input(float(price) ) but entering nothing generates an error
-                        pass
+                        break
+                    elif float(price) <= 0:
+                        print("Price must be greater than Zero.")
                     else:
                         item["price"] = round(float(price), 2) #round to 2 decimals
-                    break
+                        break
                 except ValueError:
                     print ("Invalid input. Input value must be a float or integer.")
             
@@ -126,10 +134,12 @@ def update_item(data):
                 try:
                     quantity = input("New quantity: ")
                     if len(quantity.strip()) == 0: # remove any whitespace
-                        pass
+                        break
+                    elif int(quantity) < 0:
+                        print("Quantity must be zero or greater.")
                     else:
                         item["quantity"] = int(quantity)
-                    break
+                        break
                 except ValueError:
                     print ("Invalid input. Input value must be an integer.")
 
