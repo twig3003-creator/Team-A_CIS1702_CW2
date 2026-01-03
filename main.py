@@ -137,6 +137,7 @@ def update_item(data):
             return(save_data(data))
     
     print("ID not found.")
+    return (data)
 
 
 
@@ -181,6 +182,7 @@ def clear_inventory(data):
         return(save_data(data))
     else:
         print("Cancelled.")
+        return(data)
 
 
 
