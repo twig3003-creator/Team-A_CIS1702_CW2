@@ -1,10 +1,8 @@
 import json
 import os
 
-#this loads the inventory / or you can start with a new one
+#this loads the inventory / or you can start with a new one if the file does not exist
 def load_data():
-    # changed code here, since it only worked with an existing inventory.json
-    # kept old code in case this creates bugs
     if os.path.exists("inventory.json") == True: # checks if file exists
         pass
     else:
@@ -85,6 +83,7 @@ def add_item(data):
         return(save_data(data)) # returns the data, since it gets sorted in sava_data() function
     else:
         print("Cancelled.")
+        return(data)
 
 
 
@@ -118,7 +117,7 @@ def update_item(data):
                     if len(price.strip()) == 0: # normally would combine input and assignment ( item["price"] = input(float(price) ) but entering nothing generates an error
                         pass
                     else:
-                        item["price"] = float(price)
+                        item["price"] = round(float(price), 2) #round to 2 decimals
                     break
                 except ValueError:
                     print ("Invalid input. Input value must be a float or integer.")
@@ -126,7 +125,7 @@ def update_item(data):
             while True:
                 try:
                     quantity = input("New quantity: ")
-                    if len(quantity.strip()) == 0:
+                    if len(quantity.strip()) == 0: # remove any whitespace
                         pass
                     else:
                         item["quantity"] = int(quantity)
