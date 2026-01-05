@@ -1,25 +1,27 @@
 import json
 import os
+import time
 
 FILE_NAME = "inventory.json"
 
 
 #clears the terminal screen 
 def clear_screen():
-    os.system("cls" if os.name == "nt" else "clear")
+    os.system("cls" if os.name == "nt" else "clear") # why function for just this one line
 
 
 #this loads the inventory or creates a new one if the file does not exist
 def load_data():
-    if not os.path.exists(FILE_NAME):
+    if not os.path.exists(FILE_NAME): # checks if the file exists
         print("File does not exist, creating new file.")
-        with open(FILE_NAME, "w") as file:
+        with open(FILE_NAME, "w") as file: # creates file and automatically closes it when finished
             json.dump([], file, indent=4)
         return []
 
     try:
         with open(FILE_NAME, "r") as file:
-            if os.path.getsize(FILE_NAME) == 0:
+            if os.path.getsize(FILE_NAME) == 0: # if file is empty, this creates a JSONDecodeError since it doesn't have any format
+                print("File is empty. ")
                 return []
             return json.load(file)
     except json.JSONDecodeError:
@@ -29,24 +31,24 @@ def load_data():
 
 #save inventory to file
 def save_data(data):
-    data = sorted(data, key=lambda x: int(x["id"]))
+    data = sorted(data, key=lambda x: int(x["id"])) # lambda function sorts data in ascending numerical order by ID
     with open(FILE_NAME, "w") as file:
-        json.dump(data, file, indent=4)
+        json.dump(data, file, indent=4) # overwrites existing data and replaces it with anything stored in 'data', which should be updated
     return data
 
 
 #add a new inventory item
 def add_item(data):
-    while True:
+    while True: # force user to repeat loop unless the id is valid
         invalid_id = False
-        item_id = input("ID: ").strip()
+        item_id = input("ID: ").strip() # remove whitespace and blank characters
 
         if not item_id:
             print("ID should not be empty.")
             invalid_id = True
 
         #FIX: ensure ID is numeric to prevent save_data crash
-        if not item_id.isdigit():
+        if not item_id.isdigit(): 
             print("ID must be numeric.")
             invalid_id = True
 
@@ -59,23 +61,23 @@ def add_item(data):
         if not invalid_id:
             break
 
-    while True:
+    while True: # repeat until valid name
         name = input("Name: ").strip()
         if name:
             break
         print("Name should not be empty.")
 
-    while True:
+    while True: # repeat until valid price
         try:
-            price = round(float(input("Price: ")), 2)
-            if price <= 0:
+            price = round(float(input("Price: ")), 2) # rounds to 2 decimal places
+            if price <= 0: # change to < 0: ? items could potentially be free
                 print("Price must be greater than zero.")
             else:
                 break
         except ValueError:
             print("Invalid input. Price must be a number.")
 
-    while True:
+    while True: # repeat until valid quantity
         try:
             quantity = int(input("Quantity: "))
             if quantity < 0:
@@ -107,7 +109,7 @@ def view_items(data):
         return
 
     print("--- Inventory ---")
-    for item in data:
+    for item in data: # loop through all items in the inventory, print their contents in the correct format
         print(
             f"ID: {item['id']} | "
             f"Name: {item['name']} | "
@@ -121,13 +123,13 @@ def update_item(data):
     item_id = input("Enter ID to update: ").strip()
 
     for item in data:
-        if item["id"] == item_id:
+        if item["id"] == item_id: # checks the input against every item ID in the inventory
             print("Leave blank to skip update.")
 
             updated = False  #FIX: track whether changes occur
 
             name = input("New name: ").strip()
-            if name:
+            if name: 
                 item["name"] = name
                 updated = True
 
@@ -137,8 +139,8 @@ def update_item(data):
                     break
                 try:
                     price = float(price)
-                    if price > 0:
-                        item["price"] = round(price, 2)
+                    if price > 0: # prevents negative prices --- change to >= 0? items could potentially be free
+                        item["price"] = round(price, 2) # round to 2 decimal places
                         updated = True
                         break
                 except ValueError:
@@ -175,7 +177,7 @@ def update_item(data):
 def search_item(data):
     #FIX: loop until valid search option entered
     while True:
-        option = input("Search by name or ID: ").lower().strip()
+        option = input("Search by name or ID: ").lower().strip() #remove case sensitivity and any whitespaces
         if option in ["name", "id"]:
             break
         print("Invalid search option. Try again.")
@@ -184,7 +186,7 @@ def search_item(data):
     found = False
 
     for item in data:
-        if search in item[option].lower():
+        if search in item[option].lower(): # loop through all items in inventory and check if the input of the input category is equal to item's data
             print(
                 f"ID: {item['id']} | "
                 f"Name: {item['name']} | "
@@ -237,10 +239,9 @@ def clear_all_items(data):
 
     confirm = input("Are you sure you want to clear ALL items? (Y/N): ").upper()
     if confirm == "Y":
-        data.clear()
-        save_data(data)
+        data.clear() # deletes all data
         print("All items cleared.")
-        return data
+        return save_data(data)
 
     print("Clear cancelled.")
     return data
@@ -249,21 +250,21 @@ def clear_all_items(data):
 #main menu loop
 def main():
     data = load_data()
-
+    time.sleep(3) # messages created by the load_data() function, which immediatly get cleared by clear_screen()
+                  # there needs to be time to read them
     while True:
         clear_screen()
 
         print("INVENTORY MANAGEMENT SYSTEM")
         print("===========================")
         print("1. Add Item")
-        print("2. View Stock")
-        print("3. Update Item")
+        print("2. Update Item")
+        print("3. View Stock")
         print("4. Search Item")
-        print("5. Delete Item")
-        print("6. Save & Exit")
-        print("7. Low Stock Report")
-        print("8. Clear All Items")
-        print("9. Close Programme")
+        print("5. Low Stock Report")
+        print("6. Delete Item")
+        print("7. Clear All Items")
+        print("8. Save & Exit")
         print("===========================")
 
         option = input("Choose: ").strip()
@@ -272,23 +273,20 @@ def main():
         if option == "1":
             data = add_item(data)
         elif option == "2":
-            view_items(data)
-        elif option == "3":
             data = update_item(data)
+        elif option == "3":
+            view_items(data)
         elif option == "4":
             search_item(data)
         elif option == "5":
-            data = delete_item(data)
+            low_stock_report(data)
         elif option == "6":
+            data = delete_item(data)
+        elif option == "7":
+            data = clear_all_items(data)
+        elif option == "8":
             save_data(data)
             print("Data saved, Exiting.")
-            break
-        elif option == "7":
-            low_stock_report(data)
-        elif option == "8":
-            data = clear_all_items(data)
-        elif option == "9":
-            print("Programme closed.")
             break
         else:
             print("Invalid option.")
@@ -296,6 +294,6 @@ def main():
         input("\nPress Enter to continue...")
 
 
-#ensures the program only runs when executed directly
+# ensures the program only runs when executed directly, so that it doesn't break any programs that this is imported into
 if __name__ == "__main__":
     main()
