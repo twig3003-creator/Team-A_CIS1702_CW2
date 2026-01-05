@@ -45,6 +45,11 @@ def add_item(data):
             print("ID should not be empty.")
             invalid_id = True
 
+        # FIX: ensure ID is numeric to prevent save_data crash
+        if not item_id.isdigit():
+            print("ID must be numeric.")
+            invalid_id = True
+
         for item in data:
             if item["id"] == item_id:
                 print("Item ID already exists.")
@@ -119,9 +124,12 @@ def update_item(data):
         if item["id"] == item_id:
             print("Leave blank to skip update.")
 
+            updated = False  # FIX: track whether changes occur
+
             name = input("New name: ").strip()
             if name:
                 item["name"] = name
+                updated = True
 
             while True:
                 price = input("New price: ").strip()
@@ -131,6 +139,7 @@ def update_item(data):
                     price = float(price)
                     if price > 0:
                         item["price"] = round(price, 2)
+                        updated = True
                         break
                 except ValueError:
                     pass
@@ -144,10 +153,16 @@ def update_item(data):
                     quantity = int(quantity)
                     if quantity >= 0:
                         item["quantity"] = quantity
+                        updated = True
                         break
                 except ValueError:
                     pass
                 print("Invalid quantity.")
+
+            # FIX: do not save if nothing changed
+            if not updated:
+                print("No changes made.")
+                return data
 
             print("Item updated.")
             return save_data(data)
@@ -158,10 +173,12 @@ def update_item(data):
 
 # search inventory by name or ID
 def search_item(data):
-    option = input("Search by name or ID: ").lower().strip()
-    if option not in ["name", "id"]:
-        print("Invalid search option.")
-        return
+    # FIX: loop until valid search option entered
+    while True:
+        option = input("Search by name or ID: ").lower().strip()
+        if option in ["name", "id"]:
+            break
+        print("Invalid search option. Try again.")
 
     search = input(f"Enter {option}: ").lower().strip()
     found = False
@@ -212,7 +229,6 @@ def low_stock_report(data):
         print("No low-stock items.")
 
 
-
 # clear all items from inventory
 def clear_all_items(data):
     if not data:
@@ -237,7 +253,7 @@ def main():
     while True:
         clear_screen()
 
-        print("INVENTORY MANAGEMENT SYSTEM") # Better for clarity 
+        print("INVENTORY MANAGEMENT SYSTEM")
         print("===========================")
         print("1. Add Item")
         print("2. View Stock")
@@ -246,7 +262,7 @@ def main():
         print("5. Delete Item")
         print("6. Save & Exit")
         print("7. Low Stock Report")
-        print("8. Clear All Items") # keeping it user friendly by allowing quick options to remove items.
+        print("8. Clear All Items")
         print("9. Close Programme")
         print("===========================")
 
@@ -255,34 +271,25 @@ def main():
 
         if option == "1":
             data = add_item(data)
-
         elif option == "2":
             view_items(data)
-
         elif option == "3":
             data = update_item(data)
-
         elif option == "4":
             search_item(data)
-
         elif option == "5":
             data = delete_item(data)
-
         elif option == "6":
             save_data(data)
             print("Data saved. Exiting.")
             break
-
         elif option == "7":
             low_stock_report(data)
-
         elif option == "8":
             data = clear_all_items(data)
-
         elif option == "9":
             print("Programme closed.")
             break
-
         else:
             print("Invalid option.")
 
