@@ -218,7 +218,9 @@ def main():
 
     while True:
         clear_screen()
-
+        
+        print("INVENTORY MANAGEMENT SYSTEM")
+        print("===========================")
         print("1. Add Item")
         print("2. View Stock")
         print("3. Update Item")
