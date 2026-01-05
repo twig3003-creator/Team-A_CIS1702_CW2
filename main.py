@@ -212,47 +212,77 @@ def low_stock_report(data):
         print("No low-stock items.")
 
 
+
+# clear all items from inventory
+def clear_all_items(data):
+    if not data:
+        print("Inventory is already empty.")
+        return data
+
+    confirm = input("Are you sure you want to clear ALL items? (Y/N): ").upper()
+    if confirm == "Y":
+        data.clear()
+        save_data(data)
+        print("All items cleared.")
+        return data
+
+    print("Clear cancelled.")
+    return data
+
+
 # main menu loop
 def main():
     data = load_data()
 
     while True:
         clear_screen()
-        
-        print("INVENTORY MANAGEMENT SYSTEM")
+
+        print("INVENTORY MANAGEMENT SYSTEM") # Better for clarity 
         print("===========================")
         print("1. Add Item")
         print("2. View Stock")
         print("3. Update Item")
         print("4. Search Item")
         print("5. Delete Item")
-        print("6. Low Stock Report")
-        print("7. Save & Exit")
-        print("8. Close Programme")
-        print("=====================")
+        print("6. Save & Exit")
+        print("7. Low Stock Report")
+        print("8. Clear All Items") # keeping it user friendly by allowing quick options to remove items.
+        print("9. Close Programme")
+        print("===========================")
 
         option = input("Choose: ").strip()
         clear_screen()
 
         if option == "1":
             data = add_item(data)
+
         elif option == "2":
             view_items(data)
+
         elif option == "3":
             data = update_item(data)
+
         elif option == "4":
             search_item(data)
+
         elif option == "5":
             data = delete_item(data)
+
         elif option == "6":
-            low_stock_report(data)
-        elif option == "7":
             save_data(data)
             print("Data saved. Exiting.")
             break
+
+        elif option == "7":
+            low_stock_report(data)
+
         elif option == "8":
+            data = clear_all_items(data)
+
+        elif option == "9":
             print("Programme closed.")
             break
+
         else:
             print("Invalid option.")
 
