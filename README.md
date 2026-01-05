@@ -53,9 +53,3 @@ Input validation is applied throughout to prevent invalid data and ensure can ru
 
 ---
 
-## Running the Program
-
-Ensure Python 3 is installed, then run:
-
-```bash
-python main.py
