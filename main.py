@@ -185,6 +185,10 @@ def search_item(data):
     search = input(f"Enter {option}: ").lower().strip()
     found = False
 
+    while not search:
+        print(f"{option} cannot be blank.")
+        search = input(f"Enter {option}: ").lower().strip()
+
     for item in data:
         if search in item[option].lower(): # loop through all items in inventory and check if the input of the input category is equal to item's data
             print(
