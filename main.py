@@ -1,301 +1,262 @@
 import json
 import os
 
-#this loads the inventory / or you can start with a new one if the file does not exist
+FILE_NAME = "inventory.json"
+
+
+# clears the terminal screen (Windows + macOS/Linux)
+def clear_screen():
+    os.system("cls" if os.name == "nt" else "clear")
+
+
+# this loads the inventory or creates a new one if the file does not exist
 def load_data():
-    if os.path.exists("inventory.json") == True: # checks if file exists
-        pass
-    else:
+    if not os.path.exists(FILE_NAME):
         print("File does not exist, creating new file.")
-        with open("inventory.json", "a"): # creates file
-            pass # continue to next part
-    
+        with open(FILE_NAME, "w") as file:
+            json.dump([], file, indent=4)
+        return []
+
     try:
-        with open("inventory.json", "r") as file:
-            if os.path.getsize("inventory.json") == 0: # checks if file has a size of 0, or is empty
-                print("File empty. ")
-                return [] # this would return a JSONDecodeError if the file was returned through json.load() since, as it's empty, it doesn't have the correct json format
-            else:
-                return json.load(file)
-    except ValueError: # ValueError contains JSONDecodeError - when file is not formatted correctly
-        print ("Error: File does not meet the required format")
-        exit() # end program since nothing can be done after this
+        with open(FILE_NAME, "r") as file:
+            if os.path.getsize(FILE_NAME) == 0:
+                return []
+            return json.load(file)
+    except json.JSONDecodeError:
+        print("Error: File does not meet the required JSON format.")
+        return []
 
 
-
-#save inventory to file
+# save inventory to file
 def save_data(data):
-    with open("inventory.json", "w") as file: # automatically closes the file when done
-        data = sorted(data, key=lambda x: int(x["id"])) # when adding or updating items, sort them into numerical order by id
-        json.dump(data, file, indent=4) # put data into file with correct format
-        return (data) # return data, since it was changed by the lambda function which sorted it
+    data = sorted(data, key=lambda x: int(x["id"]))
+    with open(FILE_NAME, "w") as file:
+        json.dump(data, file, indent=4)
+    return data
 
 
-
-#you can add a new item here
+# add a new inventory item
 def add_item(data):
-    while True: # repeat this loop until a valid, unused ID is submitted
+    while True:
         invalid_id = False
-        item_id = input("ID: ")
-        
-        if len(item_id.strip()) == 0: # removes any spaces and checks length, so you can't just enter a space
-            print("ID should not be empty")
+        item_id = input("ID: ").strip()
+
+        if not item_id:
+            print("ID should not be empty.")
             invalid_id = True
-        
+
         for item in data:
             if item["id"] == item_id:
-                print ("Item ID already exists, please try again.")
+                print("Item ID already exists.")
                 invalid_id = True
                 break
-        
-        if invalid_id == False:
+
+        if not invalid_id:
             break
 
     while True:
-        name = input("Name: ")
-        if len(name.strip()) == 0:
-            print ("Name should not be empty.")
-        else:
+        name = input("Name: ").strip()
+        if name:
             break
-    
-    while True: # loop allows for reentering values
-        try: # prevents invalid data types
+        print("Name should not be empty.")
+
+    while True:
+        try:
             price = round(float(input("Price: ")), 2)
-            while price <= 0:
+            if price <= 0:
                 print("Price must be greater than zero.")
-                price = round(float(input("Price: ")), 2)
-            break
+            else:
+                break
         except ValueError:
-            print ("Invalid input. Input value must be a float or integer.")
-    
+            print("Invalid input. Price must be a number.")
+
     while True:
         try:
             quantity = int(input("Quantity: "))
-            while quantity < 0:
+            if quantity < 0:
                 print("Quantity must not be below zero.")
-                quantity = int(input("Quantity: "))
-            break
+            else:
+                break
         except ValueError:
-            print("Invalid input. Input value must be an integer.")
+            print("Invalid input. Quantity must be an integer.")
 
-    # originally was "Save?", didn't make sense to keep it as such since the data should already get saved or be saved manually
-    # everything is same, just changed print statements and swapped the if requirements
-    save_now = input("Cancel? (Y/N): ").upper()
-    
-    if save_now == "N":
-        item = {"id": item_id, "name": name, "price": price, "quantity": quantity}
-        data.append(item)
+    confirm = input("Add item? (Y/N): ").upper()
+    if confirm == "Y":
+        data.append({
+            "id": item_id,
+            "name": name,
+            "price": price,
+            "quantity": quantity
+        })
         print("Item added.")
-        return(save_data(data)) # returns the data, since it gets sorted in sava_data() function
-    else:
-        print("Cancelled.")
-        return(data)
+        return save_data(data)
+
+    print("Cancelled.")
+    return data
 
 
-
-#all items in inventory
+# display all items in inventory
 def view_items(data):
     if not data:
         print("No items found.")
-    else:
-        print("--- Inventory ---")
-        for item in data: # go through every item in the data
-            print(f"ID: {item['id']} / Name: {item['name']} / £{item['price']:.2f} / Qty: {item['quantity']}")
+        return
+
+    print("--- Inventory ---")
+    for item in data:
+        print(
+            f"ID: {item['id']} | "
+            f"Name: {item['name']} | "
+            f"£{item['price']:.2f} | "
+            f"Qty: {item['quantity']}"
+        )
 
 
-
-#update item
+# update an existing item by ID
 def update_item(data):
-    item_id = input("Enter ID to update: ")
-    for item in data: # loops through all items in data
-        if item["id"] == item_id: # selects the corresponding item
+    item_id = input("Enter ID to update: ").strip()
+
+    for item in data:
+        if item["id"] == item_id:
             print("Leave blank to skip update.")
-            
-            name = input("New name: ")
-            if len(name.strip()) == 0:
-                pass
-            else:
+
+            name = input("New name: ").strip()
+            if name:
                 item["name"] = name
 
             while True:
+                price = input("New price: ").strip()
+                if not price:
+                    break
                 try:
-                    price = input("New price: ")
-                    if len(price.strip()) == 0: # normally would combine input and assignment ( item["price"] = input(float(price) ) but entering nothing generates an error
-                        break
-                    elif float(price) <= 0:
-                        print("Price must be greater than Zero.")
-                    else:
-                        item["price"] = round(float(price), 2) #round to 2 decimals
+                    price = float(price)
+                    if price > 0:
+                        item["price"] = round(price, 2)
                         break
                 except ValueError:
-                    print ("Invalid input. Input value must be a float or integer.")
-            
+                    pass
+                print("Invalid price.")
+
             while True:
+                quantity = input("New quantity: ").strip()
+                if not quantity:
+                    break
                 try:
-                    quantity = input("New quantity: ")
-                    if len(quantity.strip()) == 0: # remove any whitespace
-                        break
-                    elif int(quantity) < 0:
-                        print("Quantity must be zero or greater.")
-                    else:
-                        item["quantity"] = int(quantity)
+                    quantity = int(quantity)
+                    if quantity >= 0:
+                        item["quantity"] = quantity
                         break
                 except ValueError:
-                    print ("Invalid input. Input value must be an integer.")
+                    pass
+                print("Invalid quantity.")
 
             print("Item updated.")
-            return(save_data(data))
-    
+            return save_data(data)
+
     print("ID not found.")
-    return (data)
+    return data
 
 
-
-#search by name name or ID
+# search inventory by name or ID
 def search_item(data):
-    while True: # keep giving inputs until valid name or id is entered
-        option = input("Search by name or ID? ")
-        
-        if option.lower() != "name" and option.lower() != "id": # make sure it's valid input
-            print ("Input not recognized, try again.")
-        else:
-            search = input(f"Enter {option}: ").lower()
-            found = False
-       
-            if option.lower() == "name":
-                for item in data: # compare against every item in the data
-                    if search in item["name"].lower():
-                        print(f"ID: {item['id']} / Name: {item['name']} / £{item['price']:.2f} / Qty: {item['quantity']}")
-                        found = True
-                        break
-                break
-    
-            elif option.lower() == "id":
-                for item in data:
-                    if search in item["id"].lower():
-                        print(f"ID: {item['id']} / Name: {item['name']} / £{item['price']:.2f} / Qty: {item['quantity']}")
-                        found = True
-                        break
-                break
-            
-    if found == False:
-        print ("Item was not found.")
-                
+    option = input("Search by name or ID: ").lower().strip()
+    if option not in ["name", "id"]:
+        print("Invalid search option.")
+        return
+
+    search = input(f"Enter {option}: ").lower().strip()
+    found = False
+
+    for item in data:
+        if search in item[option].lower():
+            print(
+                f"ID: {item['id']} | "
+                f"Name: {item['name']} | "
+                f"£{item['price']:.2f} | "
+                f"Qty: {item['quantity']}"
+            )
+            found = True
+
+    if not found:
+        print("Item not found.")
 
 
-#clear all
-def clear_inventory(data):
-    confirm = input("Clear all items? (Y/N): ").upper()
-    if confirm == "Y": 
-        data.clear() # deletes every item in data
-        print("Inventory cleared.")
-        return(save_data(data))
-    else:
-        print("Cancelled.")
-        return(data)
-
-
-
-#delete single item
+# delete a single item
 def delete_item(data):
-    item_id = input("Enter ID to delete: ")
+    item_id = input("Enter ID to delete: ").strip()
+
     for item in data:
         if item["id"] == item_id:
-            confirm = input(f"Are you sure you want to delete '{item['name']}'? (Y/N): ").upper()
+            confirm = input(f"Delete '{item['name']}'? (Y/N): ").upper()
             if confirm == "Y":
                 data.remove(item)
                 print("Item deleted.")
-                return(save_data(data))
-            else:
-                print("Cancelled.")
-                return (data)
+                return save_data(data)
+            print("Cancelled.")
+            return data
+
     print("ID not found.")
+    return data
 
 
-
-#low stock report
+# report items with low stock
 def low_stock_report(data):
-    print("--- Low Stock Report (Quantity below 5) ---")
+    print("--- Low Stock Report (Below 5) ---")
     found = False
+
     for item in data:
         if item["quantity"] < 5:
             print(f"{item['name']} - Quantity: {item['quantity']}")
             found = True
+
     if not found:
         print("No low-stock items.")
 
 
-
-#Generate report
-def generate_report(data):
-    total_items = len(data) #counts the number of unique items
-    total_value = sum(item['price'] * item['quantity'] for item in data) #total financial value of all stock
-    low_stock_items = [item for item in data if item['quantity'] < 5] #items with quantity below 5
-
-    print("----- Inventory Report -----")
-    print(f"Total unique items: {total_items}")
-    print(f"Total inventory value: £{total_value:.2f}")
-    low_stock_report(data)
-
-
-
-#menu
+# main menu loop
 def main():
-    os.system('cls' if os.name == 'nt' else 'clear') # clears the terminal
     data = load_data()
-    
-    while True: # let user choose options multiple times
-        print("1. Add Item") # we could make this into 1 print statement using \n for new lines
-        print("2. View Items")
+
+    while True:
+        clear_screen()
+
+        print("1. Add Item")
+        print("2. View Stock")
         print("3. Update Item")
         print("4. Search Item")
         print("5. Delete Item")
-        print("6. Clear Inventory")
-        print("7. Low Stock Report")
-        print("8. Generate Report") 
-        print("9. Save data") # not sure why this exists, since data is automatically saved?
-        print("10. Exit")
-        print("====================") #seperator makes it visually better
+        print("6. Low Stock Report")
+        print("7. Save & Exit")
+        print("8. Close Programme")
+        print("=====================")
 
-        #if u want to add more options above make sure u change the options below too
-        option = input("Choose: ")
-        print ("====================")
+        option = input("Choose: ").strip()
+        clear_screen()
 
         if option == "1":
             data = add_item(data)
-
         elif option == "2":
             view_items(data)
-
         elif option == "3":
             data = update_item(data)
-
         elif option == "4":
             search_item(data)
-
         elif option == "5":
             data = delete_item(data)
-
         elif option == "6":
-            data = clear_inventory(data)
-
-        elif option == "7":
             low_stock_report(data)
-        
-        elif option == "8":
-            generate_report(data)
-
-        elif option == "9":
-            data = save_data(data)
-            print("Saved.")
-        
-        elif option == "10": # allows user to exit program by breaking out of main loop
-            print("Exiting program.")
+        elif option == "7":
+            save_data(data)
+            print("Data saved. Exiting.")
             break
-            
+        elif option == "8":
+            print("Programme closed.")
+            break
         else:
-            print("Invalid option.") # if an invaldi option is entered, let them enter a new option
-        print ("====================")
+            print("Invalid option.")
 
-if __name__ == "__main__": # makes it so the program doesn't run when it's imported, stopping it from breaking or interrupting other programs
+        input("\nPress Enter to continue...")
+
+
+# ensures the program only runs when executed directly
+if __name__ == "__main__":
     main()
