@@ -4,12 +4,12 @@ import os
 FILE_NAME = "inventory.json"
 
 
-# clears the terminal screen (Windows + macOS/Linux)
+#clears the terminal screen 
 def clear_screen():
     os.system("cls" if os.name == "nt" else "clear")
 
 
-# this loads the inventory or creates a new one if the file does not exist
+#this loads the inventory or creates a new one if the file does not exist
 def load_data():
     if not os.path.exists(FILE_NAME):
         print("File does not exist, creating new file.")
@@ -27,7 +27,7 @@ def load_data():
         return []
 
 
-# save inventory to file
+#save inventory to file
 def save_data(data):
     data = sorted(data, key=lambda x: int(x["id"]))
     with open(FILE_NAME, "w") as file:
@@ -35,7 +35,7 @@ def save_data(data):
     return data
 
 
-# add a new inventory item
+#add a new inventory item
 def add_item(data):
     while True:
         invalid_id = False
@@ -45,7 +45,7 @@ def add_item(data):
             print("ID should not be empty.")
             invalid_id = True
 
-        # FIX: ensure ID is numeric to prevent save_data crash
+        #FIX: ensure ID is numeric to prevent save_data crash
         if not item_id.isdigit():
             print("ID must be numeric.")
             invalid_id = True
@@ -100,7 +100,7 @@ def add_item(data):
     return data
 
 
-# display all items in inventory
+#display all items in inventory
 def view_items(data):
     if not data:
         print("No items found.")
@@ -116,7 +116,7 @@ def view_items(data):
         )
 
 
-# update an existing item by ID
+#update an existing item by ID
 def update_item(data):
     item_id = input("Enter ID to update: ").strip()
 
@@ -124,7 +124,7 @@ def update_item(data):
         if item["id"] == item_id:
             print("Leave blank to skip update.")
 
-            updated = False  # FIX: track whether changes occur
+            updated = False  #FIX: track whether changes occur
 
             name = input("New name: ").strip()
             if name:
@@ -159,7 +159,7 @@ def update_item(data):
                     pass
                 print("Invalid quantity.")
 
-            # FIX: do not save if nothing changed
+            #FIX: do not save if nothing changed
             if not updated:
                 print("No changes made.")
                 return data
@@ -171,9 +171,9 @@ def update_item(data):
     return data
 
 
-# search inventory by name or ID
+#search inventory by name or ID
 def search_item(data):
-    # FIX: loop until valid search option entered
+    #FIX: loop until valid search option entered
     while True:
         option = input("Search by name or ID: ").lower().strip()
         if option in ["name", "id"]:
@@ -197,7 +197,7 @@ def search_item(data):
         print("Item not found.")
 
 
-# delete a single item
+#delete a single item
 def delete_item(data):
     item_id = input("Enter ID to delete: ").strip()
 
@@ -215,7 +215,7 @@ def delete_item(data):
     return data
 
 
-# report items with low stock
+#report items with low stock
 def low_stock_report(data):
     print("--- Low Stock Report (Below 5) ---")
     found = False
@@ -229,7 +229,7 @@ def low_stock_report(data):
         print("No low-stock items.")
 
 
-# clear all items from inventory
+#clear all items from inventory
 def clear_all_items(data):
     if not data:
         print("Inventory is already empty.")
@@ -246,7 +246,7 @@ def clear_all_items(data):
     return data
 
 
-# main menu loop
+#main menu loop
 def main():
     data = load_data()
 
@@ -281,7 +281,7 @@ def main():
             data = delete_item(data)
         elif option == "6":
             save_data(data)
-            print("Data saved. Exiting.")
+            print("Data saved, Exiting.")
             break
         elif option == "7":
             low_stock_report(data)
@@ -296,6 +296,6 @@ def main():
         input("\nPress Enter to continue...")
 
 
-# ensures the program only runs when executed directly
+#ensures the program only runs when executed directly
 if __name__ == "__main__":
     main()
