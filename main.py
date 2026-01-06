@@ -48,7 +48,7 @@ def add_item(data):
             invalid_id = True
 
         #FIX: ensure ID is numeric to prevent save_data crash
-        if not item_id.isdigit(): 
+        elif not item_id.isdigit(): 
             print("ID must be numeric.")
             invalid_id = True
 
