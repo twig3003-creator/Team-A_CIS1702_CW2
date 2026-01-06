@@ -190,7 +190,7 @@ def search_item(data):
         search = input(f"Enter {option}: ").lower().strip()
 
     for item in data:
-        if search in item[option].lower(): # loop through all items in inventory and check if the input of the input category is equal to item's data
+        if search in item[option].lower(): # loop through all items in the inventory and check if the input of the input category is equal to item's data
             print(
                 f"ID: {item['id']} | "
                 f"Name: {item['name']} | "
@@ -254,7 +254,7 @@ def clear_all_items(data):
 #main menu loop
 def main():
     data = load_data()
-    time.sleep(3) # messages created by the load_data() function, which immediatly get cleared by clear_screen()
+    time.sleep(3) # messages created by the load_data() function, which instantly get cleared by clear_screen()
                   # there needs to be time to read them
     while True:
         clear_screen()
